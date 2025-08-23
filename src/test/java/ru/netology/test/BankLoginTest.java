@@ -11,23 +11,19 @@ import static ru.netology.data.SQLHelper.cleanDatabase;
 
 class BankLoginTest {
 
-    // loginPage в качестве переменной экземпляра класса
-    LoginPage loginPage;
+    private LoginPage loginPage;
 
-    // очистка таблицы AuthCode после каждого автотеста, для того чтоб сбрасывать счетчик
     @AfterEach
     void tearDown() {
         cleanAuthCodes();
     }
 
-    // очистка полностью базы данных после всех автотестов, аннотация @AfterAll, для того чтоб обеспечить перезапуск
-    // на момент отладки метод можно закомментировать
     @AfterAll
+
     static void tearDownAll() {
         cleanDatabase();
     }
 
-    // метод перед каждым автотестом открытием страницы помещаем ее в переменную LoginPage
     @BeforeEach
     void setUp() {
         loginPage = open("http://localhost:9999", LoginPage.class);
@@ -38,14 +34,14 @@ class BankLoginTest {
     void shouldSuccessfulLogin() {
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
-        verificationPage.veryfyVerificationPageVisiblity();
+        verificationPage.verifyVerificationPageVisibility();
         var verificationCode = SQLHelper.getVerificationCode();
         verificationPage.validVerify(verificationCode.getCode());
     }
 
     @Test
     @DisplayName("Неверно указано имя пользователя")
-    void shouldErrorInvalideLogin() {
+    void shouldErrorInvalidLogin() {
         var authInfo = DataHelper.generateRandomUser();
         loginPage.validLogin(authInfo);
         loginPage.verifyErrorNotification("Ошибка! Неверно указан логин или пароль");
@@ -56,7 +52,7 @@ class BankLoginTest {
     void shouldInvalidCodes() {
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
-        verificationPage.veryfyVerificationPageVisiblity();
+        verificationPage.verifyVerificationPageVisibility();
         var verificationCode = DataHelper.generateRandomVerificationCode();
         verificationPage.verify(verificationCode.getCode());
         verificationPage.verifyErrorNotification("Ошибка! Неверно указан код! Попробуйте ещё раз.");
@@ -66,11 +62,15 @@ class BankLoginTest {
     @DisplayName("Ввод неправильного пароля 3 раза")
     void shouldLockAfterThreeUnsuccessfulPasswords() {
         var authInfo = DataHelper.generateRandomUser();
-        var verificationPage = loginPage.validLogin(authInfo);
-        verificationPage.verifyErrorNotification("Ошибка! Неверно указан логин или пароль");
-        for (int count = 0; count < 3; count++) {
-            loginPage.validLogin(DataHelper.generateRandomUser());
+        loginPage.validLogin(authInfo);
+        loginPage.clearFields();
+
+        for (int i = 0; i < 2; i++) {
+            authInfo = DataHelper.generateRandomUser();
+            loginPage.validLogin(authInfo);
+            loginPage.clearFields();
         }
-        verificationPage.verifyErrorNotification("Превышено максимальное количество попыток авторизации");
+
+        loginPage.verifyErrorNotification("Превышено максимальное количество попыток авторизации");
     }
 }
