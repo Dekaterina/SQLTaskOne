@@ -9,6 +9,8 @@ import static com.codeborne.selenide.Selenide.open;
 import static ru.netology.data.SQLHelper.cleanAuthCodes;
 import static ru.netology.data.SQLHelper.cleanDatabase;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
+
 class BankLoginTest {
 
     private LoginPage loginPage;
@@ -19,13 +21,13 @@ class BankLoginTest {
     }
 
     @AfterAll
-
     static void tearDownAll() {
         cleanDatabase();
     }
 
     @BeforeEach
     void setUp() {
+        WebDriverManager.chromedriver().setup();
         loginPage = open("http://localhost:9999", LoginPage.class);
     }
 
@@ -63,12 +65,14 @@ class BankLoginTest {
     void shouldLockAfterThreeUnsuccessfulPasswords() {
         var authInfo = DataHelper.generateRandomUser();
         loginPage.validLogin(authInfo);
-        loginPage.clearFields();
+        loginPage.loginField.setValue("");
+        loginPage.passwordField.setValue("");
 
         for (int i = 0; i < 2; i++) {
             authInfo = DataHelper.generateRandomUser();
             loginPage.validLogin(authInfo);
-            loginPage.clearFields();
+            loginPage.loginField.setValue("");
+            loginPage.passwordField.setValue("");
         }
 
         loginPage.verifyErrorNotification("Превышено максимальное количество попыток авторизации");

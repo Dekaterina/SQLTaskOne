@@ -14,7 +14,7 @@ public class SQLHelper {
     private SQLHelper() {
     }
 
-    // метод который умеет возвращать подключение к БД
+    // метод, который умеет возвращать подключение к БД
     private static Connection getConn() throws SQLException {
         return DriverManager.getConnection(System.getProperty("db.url"), "app", "pass");
     }

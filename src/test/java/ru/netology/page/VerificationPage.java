@@ -19,9 +19,9 @@ public class VerificationPage {
         errorNotification.shouldHave(exactText(expectedText)).shouldBe(visible);
     }
 
-    public void validVerify(String verificationCode) {
+    public DashboardPage validVerify(String verificationCode) {
         verify(verificationCode);
-        new DashboardPage();
+        return new DashboardPage();
     }
 
     public void verify(String verificationCode) {

@@ -31,11 +31,16 @@ dependencies {
     testImplementation 'com.github.javafaker:javafaker:1.0.2'
     testImplementation 'commons-dbutils:commons-dbutils:1.7'
 
+    // добавляем WebDriverManager
+    testImplementation 'io.github.bonigarcia:webdrivermanager:5.3.2'
+
+    // добавляем реализацию логгера для SLF4J
+    testImplementation 'ch.qos.logback:logback-classic:1.4.6'
 }
+
 test {
     useJUnitPlatform()
     // в тестах, вызывая `gradlew test -Dselenide.headless=true` будем передавать этот параметр в JVM (где его подтянет Selenide)
-    // свойство selenide.headless используется в проектах на основе Selenide для передачи значения параметра в JVM
     systemProperty 'selenide.headless', System.getProperty('selenide.headless')
 
     // задаем системное свойство, значение по умолчанию или
@@ -44,5 +49,4 @@ test {
 
     // свойство chromeoptions.prefs используется для задания настроек браузера в проектах на основе Selenide, выключаем менеджер паролей
     systemProperty 'chromeoptions.prefs', System.getProperty('chromeoptions.prefs', "profile.password_manager_leak_detection=false")
-
 }
