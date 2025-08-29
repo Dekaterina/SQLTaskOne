@@ -6,10 +6,9 @@ import ru.netology.data.SQLHelper;
 import ru.netology.page.LoginPage;
 
 import static com.codeborne.selenide.Selenide.open;
+import static org.openqa.selenium.Keys.*;
 import static ru.netology.data.SQLHelper.cleanAuthCodes;
 import static ru.netology.data.SQLHelper.cleanDatabase;
-
-import io.github.bonigarcia.wdm.WebDriverManager;
 
 class BankLoginTest {
 
@@ -27,7 +26,6 @@ class BankLoginTest {
 
     @BeforeEach
     void setUp() {
-        WebDriverManager.chromedriver().setup();
         loginPage = open("http://localhost:9999", LoginPage.class);
     }
 
@@ -65,14 +63,18 @@ class BankLoginTest {
     void shouldLockAfterThreeUnsuccessfulPasswords() {
         var authInfo = DataHelper.generateRandomUser();
         loginPage.validLogin(authInfo);
-        loginPage.loginField.setValue("");
-        loginPage.passwordField.setValue("");
+
+        // Очистка полей ввода с использованием клавиши Shift+Home и Backspace
+        loginPage.loginField.press(chord(SHIFT, HOME)).press(BACK_SPACE);
+        loginPage.passwordField.press(chord(SHIFT, HOME)).press(BACK_SPACE);
 
         for (int i = 0; i < 2; i++) {
             authInfo = DataHelper.generateRandomUser();
             loginPage.validLogin(authInfo);
-            loginPage.loginField.setValue("");
-            loginPage.passwordField.setValue("");
+
+            // Повторная очистка полей ввода
+            loginPage.loginField.press(chord(SHIFT, HOME)).press(BACK_SPACE);
+            loginPage.passwordField.press(chord(SHIFT, HOME)).press(BACK_SPACE);
         }
 
         loginPage.verifyErrorNotification("Превышено максимальное количество попыток авторизации");
