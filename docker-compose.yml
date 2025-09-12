@@ -1,4 +1,3 @@
-version: '3.7'
 services:
   mysql:
     image: mysql:8.0.41
@@ -6,9 +5,48 @@ services:
     ports:
       - '3306:3306'
     volumes:
-      - ./schema:/docker-entrypoint-initdb.d
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
     environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=db
+      - MYSQL_ROOT_PASSWORD=pass
+      - MYSQL_DATABASE=app
       - MYSQL_USER=app
       - MYSQL_PASSWORD=pass
+      - MYSQL_ROOT_HOST=%
+    command: --bind-address=0.0.0.0 --skip-name-resolve --ssl=0 --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pass"]
+      interval: 5s
+      timeout: 10s
+      retries: 2
+      start_period: 30s
+    networks:
+      - app-network
+
+  app:
+    build: .
+    ports:
+      - "9999:9999"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/app?connectTimeout=60000&socketTimeout=60000&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=app
+      - SPRING_DATASOURCE_PASSWORD=pass
+      - DBCP_VALIDATION_QUERY=SELECT 1
+      - DBCP_TEST_ON_BORROW=true
+      - DBCP_TEST_ON_RETURN=fal
+      - DBCP_TEST_WHILE_IDLE=true
+      - SERVER_PORT=9999
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: [ "sh", "-c", "
+        echo 'Waiting for MySQL to be fully ready...';
+        sleep 60;  # Даем MySQL время на полный запуск
+        echo 'Starting application...';
+        java -jar /app/app.jar
+      " ]
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

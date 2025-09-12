@@ -9,7 +9,7 @@ import static com.codeborne.selenide.Selenide.$;
 
 public class DashboardPage {
 
-    // метод для проверки того что вы попали на страницу Dashboard
+
     public DashboardPage() {
         SelenideElement heading = $("[data-test-id=dashboard]");
         heading.shouldHave(text("Личный кабинет")).shouldBe(visible);

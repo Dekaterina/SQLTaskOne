@@ -6,10 +6,11 @@ import ru.netology.data.DataHelper;
 import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
+import static org.openqa.selenium.Keys.*;
 
 public class LoginPage {
-    public final SelenideElement loginField = $("[data-test-id=login] input");
-    public final SelenideElement passwordField = $("[data-test-id=password] input");
+    private final SelenideElement loginField = $("[data-test-id=login] input");
+    private final SelenideElement passwordField = $("[data-test-id=password] input");
     private final SelenideElement loginButton = $("[data-test-id=action-login]");
     private final SelenideElement errorNotification = $("[data-test-id='error-notification'] .notification__content");
 
@@ -26,9 +27,7 @@ public class LoginPage {
     }
 
     public void cleanFields() {
-        loginField.setValue("");
-        passwordField.setValue("");
+        loginField.press(chord(SHIFT, HOME)).press(BACK_SPACE);
+        passwordField.press(chord(SHIFT, HOME)).press(BACK_SPACE);
     }
 }
-
-
